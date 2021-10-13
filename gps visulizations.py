@@ -58,7 +58,7 @@ def get_data(json_filename, incident_number):#chris's function
     return [zoomed_in_df, zoomed_out_df, zoomed_in_tilts, status]
 
 
-incidentnum=3
+incidentnum=1
 
 
 gpsdata= get_data('data/categorised.json',incidentnum)[0]
@@ -96,13 +96,17 @@ for i in range(len(gps_df[0])):
 vectors = []
 prev=coordinates[0]
 for i in coordinates:
-    a=i[0]-prev[0]
-    b=i[1]-prev[1]
+    a=(i[0]-prev[0])
+    b=(i[1]-prev[1])
+    prev=i
+    #a=a/np.sqrt(a*a+b*b)
+    #b=b/np.sqrt(a*a+b*b)
     vectors.append((a,b))#x,y for vector
     
     
 #print(coordinates[0])
-
+print(len(coordinates))
 plt.quiver(*zip(*coordinates), *zip(*vectors))
-#plt.scatter(*zip(*coordinates))
+plt.scatter(coordinates[0][0],coordinates[0][1])
+plt.scatter(coordinates[len(coordinates)-1][0],coordinates[len(coordinates)-1][1])
 plt.show()
