@@ -58,7 +58,10 @@ def get_data(json_filename, incident_number):#chris's function
     return [zoomed_in_df, zoomed_out_df, zoomed_in_tilts, status]
 
 
-gpsdata= get_data('data/categorised.json',3)[0]
+incidentnum=3
+
+
+gpsdata= get_data('data/categorised.json',incidentnum)[0]
 xcords=pd.DataFrame(gpsdata.get("gridx")).to_numpy()
 ycords=pd.DataFrame(gpsdata.get("gridy")).to_numpy()
 print(gpsdata)
