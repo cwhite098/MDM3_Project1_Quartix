@@ -116,6 +116,18 @@ def get_labels(cat_data):
 
     return y_test
 
+def get_mags(X):
+    mag_X = np.empty((len(X), 72))
+    for i in range(len(X)):
+        for k in range(72):
+            vector = np.array(X[i,k,:])
+            vector = [float(i) for i in vector]
+            mag = np.linalg.norm(vector[:])
+            #if mag < 0:
+            #   mag*-1
+            mag_X[i,k] = mag
+    return mag_X
+
 ###########################################################
 ### PICKLE FUNCTIONS                                    ###
 ### Used to save and load python data structs to file   ###
