@@ -1,29 +1,32 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Oct 18 21:18:44 2021
+Created on Thu Oct 21 20:07:21 2021
 
 @author: kiera
 """
+
+
 import numpy as np
 import pandas as pd
+
 from tsfresh import extract_features
 
-def get_data(json_filename, incident_number):#chris's function
+def get_data(json_filename, incident_number):#chris's function mk2
 
     df_categorised = pd.read_json(json_filename)
     df_uncategorised = pd.read_json('data/uncategorised.json')
 
     # Get status of incident
     status = df_categorised['status']
-    status = status[:]
+    status = status[incident_number]
 
     # Get detailed info
     accel_df = df_categorised['detail']
-    detail_dict = accel_df[:]
+    detail_dict = accel_df[incident_number]
 
     # Less detailed data
     gps_df = df_categorised['journey']
-    journey_dict = gps_df[:]
+    journey_dict = gps_df[incident_number]
 
     # Zoomed out data, has long term speed and accelerometer data
     zoomed_out_df = pd.DataFrame.from_dict(journey_dict)
@@ -52,12 +55,76 @@ def get_data(json_filename, incident_number):#chris's function
     
 
     return [zoomed_in_df, zoomed_out_df, zoomed_in_tilts, status]
-incidentnum = 1
-data= get_data('data/categorised.json',incidentnum)[2]
 
 df_categorised = pd.read_json('data/categorised.json')
-top = data.head
-print(top)
-print(df_categorised['status'])
-feature = extract_features(data,column_id="index")
-print(feature)
+all_data = []
+
+
+
+count = int(len(df_categorised)/16)#number incidents beiug viewed
+
+
+
+for i in range(count):
+    data = get_data('data/categorised.json', i)[2]
+    all_data.append(data)
+"""for i in range(len(all_data)):
+    # Changes labels to binary system
+    if 'Correct' in all_data[i][3]:
+        all_data[i][3] = 1
+    else:
+        all_data[i][3] = 0
+"""
+#print(all_data)
+print("end")
+"""
+print(type(all_data))
+print(type(all_data[0]["tiltx"].loc))
+print(type(all_data[0]["tiltx"]))
+"""
+#.loc is evil 
+#print(all_data[0].loc)
+print(all_data[0]["tiltx"].to_numpy()[1])
+#print(type(all_data[0]["tiltx"].tolist()))
+print("end")
+
+tiltx=[]
+tilty=[]
+tiltz=[]
+timeoffset=[]
+for i in range(count):   
+   for j in range(8):
+       print(all_data[i]["tiltx"].to_numpy()[j])
+       print("appendy")
+       tiltx.append(all_data[i]["tiltx"].to_numpy()[j])
+       tilty.append(all_data[i]["tilty"].to_numpy()[j])
+       tiltz.append(all_data[i]["tiltz"].to_numpy()[j])
+       timeoffset.append(all_data[i]["timeoffset"][j])
+
+print(tiltx)
+print(len(tiltx))
+df=pd.DataFrame()
+arr=[]
+c=-1
+for i in range(count):
+    c+=1
+    
+    
+    for i in range(8):#8data points per incident
+        arr.append(c)
+        
+        
+"""        
+print(arr)
+print(len(arr))
+print(tiltx)
+print(len(tiltx))
+"""
+
+df["key"]= arr
+df["tiltx"] = tiltx
+df["tilty"] = tilty
+df["tiltz"] = tiltz
+df["timeoffset"] = timeoffset
+
+features = extract_features(all_data,column_id="key",column_sort="timeoffset")
