@@ -102,7 +102,7 @@ for i in range(count):
        timeoffset.append(all_data[i]["timeoffset"][j])
 
 print(tiltx)
-print(len(tiltx))
+print(len(tiltx))#should be 8*count 8 datamums per incident 
 df=pd.DataFrame()
 arr=[]
 c=-1
@@ -120,11 +120,19 @@ print(len(arr))
 print(tiltx)
 print(len(tiltx))
 """
-
-df["key"]= arr
+"""
+df["id"]= arr
 df["tiltx"] = tiltx
 df["tilty"] = tilty
 df["tiltz"] = tiltz
 df["timeoffset"] = timeoffset
+"""
 
-features = extract_features(all_data,column_id="key",column_sort="timeoffset")
+df["id"]= arr
+df["tiltx"] = all_data[0:5]["tiltx"]
+df["tilty"] = all_data[:]["tilty"]
+df["tiltz"] = all_data[0:len(all_data)]["tiltz"]
+df["timeoffset"] = all_data[:]["timeoffset"]
+
+
+features = extract_features(all_data,column_id="id", column_sort="time", column_kind="kind", column_value="value")
