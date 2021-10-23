@@ -80,29 +80,24 @@ def get_data(json_filename):
 
     return all_data
 
-
 def get_timeseries(tilts):
     tilts = np.array(tilts)
     tilts = tilts[:,1:]
     tilt_timeseries = tilts.transpose()
     tilt_timeseries = tilt_timeseries.astype('float')
-    tilt_timeseries = np.reshape(tilt_timeseries,(1,72,3))
+    tilt_timeseries = np.reshape(tilt_timeseries,(3,72))
 
     return tilt_timeseries
 
-
 def get_tilt_timeseries(data):
-    # Extracts timeseries of tilts for whole dataset (output shape = (no_ts, len_ts, axes))
-
-    X = []
-    for i in tqdm(range(len(data))):
+    # Extracts timeseries of tilts for whole dataset (output shape = (incidents, len_ts, axes))
+    X = np.empty((len(data),72,3))
+    for i in range(len(data)):
         incident = data[i]
-        tilts = incident[1]
-        tilt_timeseries = get_timeseries(tilts)
-        X.append(tilt_timeseries)
-    X = np.array(X)
-    X = np.reshape(X, (X.shape[0], 72, 3))
-
+        tilts = np.array(incident[1])
+        tilts = tilts[:,1:]
+        X[i,:,:] = tilts
+    X = np.reshape(X,(len(data),72,3))
     return X
 
 def get_labels(cat_data):
@@ -141,3 +136,56 @@ def load_list(folder_name, file_name):
     with open(folder_name + '/' + file_name, 'rb') as fp:
         return pickle.load(fp)
 ###########################################################
+### PLOTTING                                            ###
+### Functions needed to plot example incident           ###
+###########################################################
+def plot_tilts_zi(df, title):
+    tilts = get_timeseries(df)
+    timeoffset = np.linspace(-6, 2.875, 72)
+    plt.plot(timeoffset, tilts[0,:], label='tiltx', color='red')
+    plt.plot(timeoffset, tilts[1,:], label='tilty', color='blue')
+    plt.plot(timeoffset, tilts[2,:], label='tiltz', color='green')
+    plt.title(title), plt.xlabel('TimeOffset'), plt.ylabel('Tilt')
+    plt.legend(loc='best')
+    #plt.show()
+
+def plot_tilts_zo(df, title):
+    plt.plot(df['timeoffset'], df['tiltx'], label='tiltx', color='red')
+    plt.plot(df['timeoffset'], df['tilty'], label='tilty', color='blue')
+    plt.plot(df['timeoffset'], df['tiltz'], label='tiltz', color='green')
+    plt.title(title), plt.xlabel('TimeOffset'), plt.ylabel('Tilt')
+    plt.legend(loc='best')
+    #plt.show()
+
+def plot_speeds(df, title):
+    plt.plot(df['timeoffset'], df['speed'], label='Speed', color='blue')
+    plt.title(title), plt.xlabel('TimeOffset'), plt.ylabel('Speed')
+    #plt.show()
+
+def plot_grid(df, title):
+    X = df['gridx']
+    Y = df['gridy']
+    plt.plot(X, Y, label='Path', color='blue')
+    plt.scatter(X.iloc[0], Y.iloc[0], label='Start', marker='*', color='red')
+    plt.scatter(X.iloc[-1], Y.iloc[-1], label='End', marker='o', color='red')
+    plt.scatter(0,0, label='Incident', color='red', marker='x')
+    plt.legend(loc='best')
+    plt.title(title), plt.xlabel('gridX'), plt.ylabel('gridY')
+    #plt.show()
+
+def plot_example(incident, title):
+    fig = plt.figure(figsize=(14,10))
+    fig.suptitle(title, fontsize=16)
+    plt.subplot(2,3,1)
+    plot_tilts_zi(incident[1], 'Zoomed In Tilts')
+    plt.subplot(2,3,2)
+    plot_tilts_zo(incident[2], 'Zoomed Out Tilts')
+    plt.subplot(2,3,3)
+    plot_speeds(incident[0], 'Zoomed In Speeds')
+    plt.subplot(2,3,4)
+    plot_speeds(incident[2], 'Zoomed Out Speeds')
+    plt.subplot(2,3,5)
+    plot_grid(incident[2], 'Zoomed Out Locations')
+    plt.subplot(2,3,6)
+    plot_grid(incident[0], 'Zoomed In Locations')
+    plt.show()
