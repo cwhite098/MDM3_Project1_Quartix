@@ -123,8 +123,6 @@ def get_mags(X):
             vector = np.array(X[i,k,:])
             vector = [float(i) for i in vector]
             mag = np.linalg.norm(vector[:])
-            #if mag < 0:
-            #   mag*-1
             mag_X[i,k] = mag
     return mag_X
 
