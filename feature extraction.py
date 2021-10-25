@@ -87,20 +87,31 @@ print(type(all_data[0]["tiltx"]))
 print(all_data[0]["tiltx"].to_numpy()[1])
 #print(type(all_data[0]["tiltx"].tolist()))
 print("end")
-
+"""
+tiltx={"tiltx":[]}
+tilty={"tilty":[]}
+tiltz={"tiltz":[]}
+timeoffset={"timeoffset":[]}
+"""
 tiltx=[]
 tilty=[]
 tiltz=[]
 timeoffset=[]
+
 for i in range(count):   
    for j in range(8):
        print(all_data[i]["tiltx"].to_numpy()[j])
        print("appendy")
+       """
+       tiltx["tiltx"].append(all_data[i]["tiltx"].to_numpy()[j])
+       tilty["tilty"].append(all_data[i]["tilty"].to_numpy()[j])
+       tiltz["tiltz"].append(all_data[i]["tiltz"].to_numpy()[j])
+       timeoffset["timeoffset"].append(all_data[i]["timeoffset"][j])
+       """
        tiltx.append(all_data[i]["tiltx"].to_numpy()[j])
        tilty.append(all_data[i]["tilty"].to_numpy()[j])
        tiltz.append(all_data[i]["tiltz"].to_numpy()[j])
        timeoffset.append(all_data[i]["timeoffset"][j])
-
 print(tiltx)
 print(len(tiltx))#should be 8*count 8 datamums per incident 
 df=pd.DataFrame()
@@ -120,19 +131,24 @@ print(len(arr))
 print(tiltx)
 print(len(tiltx))
 """
-"""
-df["id"]= arr
-df["tiltx"] = tiltx
-df["tilty"] = tilty
-df["tiltz"] = tiltz
-df["timeoffset"] = timeoffset
-"""
 
+df= df.append(arr, ignore_index=True)
+df = df.append(tiltx, ignore_index=True)
+df = df.append(tilty, ignore_index=True)
+df = df.append(tiltz, ignore_index=True)
+"""
+df2=pd.DataFrame()
+df2 = df.append(timeoffset)
+df2 = df.reset_index()
+df = df.reset_index()
+df =pd.concat([df,df2], axis=1)  
+"""
+"""
 df["id"]= arr
-df["tiltx"] = all_data[0:5]["tiltx"]
+df["tiltx"] = df.append(all_data["tiltx"], ignore_index=True)
 df["tilty"] = all_data[:]["tilty"]
 df["tiltz"] = all_data[0:len(all_data)]["tiltz"]
 df["timeoffset"] = all_data[:]["timeoffset"]
-
+"""
 
 features = extract_features(all_data,column_id="id", column_sort="time", column_kind="kind", column_value="value")
