@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Oct 26 11:04:46 2021
+Created on Tue Oct 26 12:16:50 2021
 
 @author: kiera
 """
-
-import numpy as np
-import pandas as pd
-from tsfresh import extract_features
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+
 
 def get_data(json_filename, incident_number):
 
@@ -58,56 +54,38 @@ def get_data(json_filename, incident_number):
 
     return [zoomed_in_df, zoomed_out_df, zoomed_in_tilts, status]
 incidentnum = 0
-#print(get_data('data/categorised.json',incidentnum)[0]["speed"])
-#data = get_data('data/categorised.json',incidentnum)[0]
-#print(data.head)
-
-def check_keyword(incidentnum,data0,keyword="Ignition-Off"):
-    r=0
-    data0=data0["event"].values
-    c=0
-    for i in data0:
-        c+=1
-        if data0==keyword and c>7:
-            return 2 #key word after t=0
-        elif data0==keyword:#if key word found but not after 0
-            r=1
-    return r#returns 0 if no keyword found
-
-
-
-def get_max_vel_chng(incidentnum,data0):
-    current=0
-    data0 =data0["speed"].values
-    #print(data0[-1])
-    #print(data0)
-    #print(type(data0))
-    
-    for i in range(8):
-        #print(i)
-        if(i<7):
-            #print(i)
-            print(abs(data0[i]-data0[i+1]))
-            if abs(data0[i]-data0[i+1])>current:
-               # print(abs(data0[i]-data0[i+1]))
-                current = abs(data0[i]-data0[i+1])
-    return current    
-
-data = get_data('data/categorised.json',incidentnum)[2]
-print(data.head)
-
-def get_max_acc(incidentnum,data2):
-    current=0
+def re_align_tiltdata(incidentnum):   
+    data2 = get_data('data/categorised.json',incidentnum)[2]
     x = data2["tiltx"].values
     y = data2["tilty"].values
     z = data2["tiltz"].values
-    for i in range(8):
-        if(x**2+y**2+z**2>current):
-            current = x**2+y**2+z**2
-    return current
-
-
-    
-    
-    
-    
+    print(x)
+    print(type(x))
+    x=list(np.float_(x))
+    y=list(np.float_(y))
+    z=list(np.float_(z))
+    print(type(x))
+    xdif= abs(1-np.mean(x))
+    ydif= abs(1-np.mean(y))
+    zdif= abs(1-np.mean(z))
+    if zdif>xdif or zdif>ydif:
+        if ydif<xdif:#ysmallest difference from 1 therefor y = z
+            temp=z
+            z=y
+            y=temp
+        else:#xdiff smallest
+            temp =z
+            z=x
+            x=temp
+incidentcount= len(get_data('data/categorised.json',incidentnum)[2])
+X={}
+Y={}
+Z={}
+#Y=[[][]]
+#Z=[[][]]
+for i in range(incidentcount):
+    data = re_align_tiltdata(incidentnum)
+    X.update({str(i):data[0]})
+    Y.update({str(i):data[1]})
+    Z.update({str(i):data[2]})
+print(X)
