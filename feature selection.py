@@ -59,8 +59,8 @@ def get_data(json_filename, incident_number):
     return [zoomed_in_df, zoomed_out_df, zoomed_in_tilts, status]
 incidentnum = 0
 #print(get_data('data/categorised.json',incidentnum)[0]["speed"])
-data = get_data('data/categorised.json',incidentnum)[0]
-print(data.head)
+#data = get_data('data/categorised.json',incidentnum)[0]
+#print(data.head)
 
 def check_keyword(incidentnum,data0,keyword="Ignition-Off"):
     r=0
@@ -70,9 +70,11 @@ def check_keyword(incidentnum,data0,keyword="Ignition-Off"):
         c+=1
         if data0==keyword and c>7:
             return 2 #key word after t=0
-        elif data0==keyword:
+        elif data0==keyword:#if key word found but not after 0
             r=1
-    return r
+    return r#returns 0 if no keyword found
+
+
 
 def get_max_vel_chng(incidentnum,data0):
     current=0
@@ -91,8 +93,10 @@ def get_max_vel_chng(incidentnum,data0):
                 current = abs(data0[i]-data0[i+1])
     return current    
 
+data = get_data('data/categorised.json',incidentnum)[2]
+print(data.head)
 
-
+#def get_max_acc(incidentnum,data2):
 
 
     
