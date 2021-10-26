@@ -9,22 +9,26 @@ import numpy as np
 import pandas as pd
 from tsfresh import extract_features
 
-def get_data(json_filename, incident_number):#chris's function
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+def get_data(json_filename, incident_number):
 
     df_categorised = pd.read_json(json_filename)
     df_uncategorised = pd.read_json('data/uncategorised.json')
 
     # Get status of incident
     status = df_categorised['status']
-    status = status[:]
+    status = status[incident_number]
 
     # Get detailed info
     accel_df = df_categorised['detail']
-    detail_dict = accel_df[:]
+    detail_dict = accel_df[incident_number]
 
     # Less detailed data
     gps_df = df_categorised['journey']
-    journey_dict = gps_df[:]
+    journey_dict = gps_df[incident_number]
 
     # Zoomed out data, has long term speed and accelerometer data
     zoomed_out_df = pd.DataFrame.from_dict(journey_dict)
@@ -53,11 +57,44 @@ def get_data(json_filename, incident_number):#chris's function
     
 
     return [zoomed_in_df, zoomed_out_df, zoomed_in_tilts, status]
-incidentnum =0
-print(get_data('data/categorised.json',incidentnum)[0])
+incidentnum = 0
+#print(get_data('data/categorised.json',incidentnum)[0]["speed"])
+data = get_data('data/categorised.json',incidentnum)[0]
+print(data.head)
 
-#def get_max_vel_chng(incidentnum,data0):
+def check_keyword(incidentnum,data0,keyword="Ignition-Off"):
+    r=0
+    data0=data0["event"].values
+    c=0
+    for i in data0:
+        c+=1
+        if data0==keyword and c>7:
+            return 2 #key word after t=0
+        elif data0==keyword:
+            r=1
+    return r
+
+def get_max_vel_chng(incidentnum,data0):
+    current=0
+    data0 =data0["speed"].values
+    #print(data0[-1])
+    #print(data0)
+    #print(type(data0))
     
+    for i in range(8):
+        #print(i)
+        if(i<7):
+            #print(i)
+            print(abs(data0[i]-data0[i+1]))
+            if abs(data0[i]-data0[i+1])>current:
+               # print(abs(data0[i]-data0[i+1]))
+                current = abs(data0[i]-data0[i+1])
+    return current    
+
+
+
+
+
     
     
     
