@@ -4,76 +4,24 @@ Created on Tue Oct 26 11:04:46 2021
 
 @author: kiera
 """
-
 import numpy as np
 import pandas as pd
-from tsfresh import extract_features
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from extract_data import *
+from sklearn.metrics import confusion_matrix
 
-def get_data(json_filename, incident_number):
+def check_keyword(data2, keyword="Ignition-Off"):
+    # Returns the number of ignition-off events for an incident
+    r = 0
+    data2 = data2["event"].values
 
-    df_categorised = pd.read_json(json_filename)
-    df_uncategorised = pd.read_json('data/uncategorised.json')
+    for i in range(len(data2)):
+        if data2[i] == keyword:
+            r += 1
 
-    # Get status of incident
-    status = df_categorised['status']
-    status = status[incident_number]
-
-    # Get detailed info
-    accel_df = df_categorised['detail']
-    detail_dict = accel_df[incident_number]
-
-    # Less detailed data
-    gps_df = df_categorised['journey']
-    journey_dict = gps_df[incident_number]
-
-    # Zoomed out data, has long term speed and accelerometer data
-    zoomed_out_df = pd.DataFrame.from_dict(journey_dict)
-
-    # Zoomed in data, use to get the speed in smaller interval
-    zoomed_in_df = pd.DataFrame.from_dict(detail_dict)
-
-    # Extract the higher resolution accelerometer data for the crash
-    forces = zoomed_in_df['forces']
-    zoomed_in_tilts = []
-    for second in forces:
-        force_1 = pd.DataFrame.from_dict(second)
-        zoomed_in_tilts.append(force_1)
-
-    zoomed_in_tilts = pd.concat(zoomed_in_tilts)
-    zoomed_in_tilts = zoomed_in_tilts.rename(columns={'index':'timeoffset'})
-
-    linspace_1 = np.linspace(-6, 2.875, 72)
-    zoomed_in_tilts['timeoffset'] = linspace_1
-
-    # Changed zoomed_in_df to include t=0 and the other variables
-    zoomed_in_df = zoomed_out_df[zoomed_out_df['event'] == 'CDistance']
-    alert_row = zoomed_out_df[zoomed_out_df['event'] == 'Alert']
-    zoomed_in_df = zoomed_in_df.append(alert_row)
-    zoomed_in_df = zoomed_in_df.sort_index()
-    
-
-    return [zoomed_in_df, zoomed_out_df, zoomed_in_tilts, status]
-incidentnum = 0
-#print(get_data('data/categorised.json',incidentnum)[0]["speed"])
-#data = get_data('data/categorised.json',incidentnum)[0]
-#print(data.head)
-
-def check_keyword(incidentnum,data0,keyword="Ignition-Off"):
-    r=0
-    data0=data0["event"].values
-    c=0
-    for i in data0:
-        c+=1
-        if data0==keyword and c>7:
-            return 2 #key word after t=0
-        elif data0==keyword:#if key word found but not after 0
-            r=1
-    return r#returns 0 if no keyword found
-
+    return r #returns 0 if no keyword found
 
 
 def get_max_vel_chng(incidentnum,data0):
@@ -93,18 +41,37 @@ def get_max_vel_chng(incidentnum,data0):
                 current = abs(data0[i]-data0[i+1])
     return current    
 
-data = get_data('data/categorised.json',incidentnum)[2]
-print(data.head)
 
-def get_max_acc(incidentnum,data2):
+def get_max_acc(incidentnum, data1):
     current=0
-    x = data2["tiltx"].values
-    y = data2["tilty"].values
-    z = data2["tiltz"].values
+
+    x = data1["tiltx"].values
+    y = data1["tilty"].values
+    z = data1["tiltz"].values
+
     for i in range(8):
         if(x**2+y**2+z**2>current):
             current = x**2+y**2+z**2
+
     return current
+
+
+
+cat_data = load_list('pickle_data', 'cat_data')
+
+ignition_event_list = []
+for incident in cat_data:
+    r = check_keyword(incident[2], keyword='Ignition-Off')
+
+    ignition_event_list.append(r)
+
+print(ignition_event_list)
+y_pred = np.nonzero(ignition_event_list)
+
+y = get_labels(cat_data)
+print(y)
+
+print(confusion_matrix(y, ignition_event_list))
 
 
     
