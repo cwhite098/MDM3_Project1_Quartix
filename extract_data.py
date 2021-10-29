@@ -121,6 +121,32 @@ def get_mags(X):
             mag_X[i,k] = mag
     return mag_X
 
+
+
+def calibrate_remove_z(data):
+    cali_data = np.empty((int(data.shape[0]), int(data.shape[1]), 2))
+    z_dirs = []
+    for i in range(len(data)):
+        # Calculate the average over the first 4 seconds (average shouldn't be affected by the crash)
+        x_av = np.sum(data[i,:32,0])/len(data[i,:32,0])
+        y_av = np.sum(data[i,:32,1])/len(data[i,:32,1])
+        z_av = np.sum(data[i,:32,2])/len(data[i,:32,2])
+
+        max_av = np.argmax(np.abs([x_av, y_av, z_av])) # find the direction with largest absolute value (should be z)
+        z_dirs.append(max_av)
+
+        if max_av == 0:
+            cali_data[i,:,0] = data[i,:,1] - y_av
+            cali_data[i,:,1] = data[i,:,2] - z_av
+        if max_av == 1:
+            cali_data[i,:,0] = data[i,:,0] - x_av
+            cali_data[i,:,1] = data[i,:,2] - z_av
+        if max_av == 2:
+            cali_data[i,:,0] = data[i,:,0] - x_av
+            cali_data[i,:,1] = data[i,:,1] - y_av
+
+    return cali_data
+
 ###########################################################
 ### PICKLE FUNCTIONS                                    ###
 ### Used to save and load python data structs to file   ###
