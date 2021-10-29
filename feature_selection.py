@@ -54,16 +54,20 @@ def get_vel_change(incident):
 #feature to see if ignition is turned off after the alert, and if so how long it took for that to happen 
 #returns 0 if ignition is not turned off, returns an interger value of time offset if ignition is turned off
 #if there are multiple ignition offs after the alert we take the 1st value
-
-
 def ignition_off_checker(incident):
-    event_series = incident[2]['event']
-    time_offset = incident[2]['timeoffset']
+
+    data = incident[2]
+    ignition_time_off = 0
+
+    event_series = data['event']
+    time_offset = data['timeoffset']
     length_events = len(event_series)
+
     for event in range(length_events):
         if event_series[event] == 'Ignition-Off' and time_offset[event] > 0:
             ignition_time_off = time_offset[event]
             break 
+
     return ignition_time_off
 
 
@@ -87,6 +91,7 @@ def extract_features(data):
     stop_event_list = []
     d_v_list = []
     max_acc_list = []
+    ignition_times_list = []
 
     tilts = get_tilt_timeseries(data)
     tilts_no_z = calibrate_remove_z(tilts)
@@ -96,14 +101,16 @@ def extract_features(data):
         st = check_keyword(data[incident], keyword='Stop')
         d_v = get_vel_change(data[incident])
         max_acc = get_max_acc(tilts_no_z[incident])
+        ignition_time = ignition_off_checker(data[incident])
 
         ignition_event_list.append(ig)
         stop_event_list.append(st)
         d_v_list.append(d_v)
         max_acc_list.append(max_acc)
+        ignition_times_list.append(ignition_time)
 
 
-    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list]))
+    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list]))
 
     return features
 
@@ -111,6 +118,7 @@ def extract_features(data):
 cat_data = load_list('pickle_data', 'cat_data')
 
 features = extract_features(cat_data)
+
     
     
     
