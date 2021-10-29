@@ -121,8 +121,10 @@ def get_mags(X):
             mag_X[i,k] = mag
     return mag_X
 
-
-
+###########################################################
+### Calibration Functions                               ###
+### Used to calibrate tilt data + adjust for gravity    ###
+###########################################################
 def calibrate_remove_z(data):
     cali_data = np.empty((int(data.shape[0]), int(data.shape[1]), 2))
     z_dirs = []
@@ -145,6 +147,19 @@ def calibrate_remove_z(data):
             cali_data[i,:,0] = data[i,:,0] - x_av
             cali_data[i,:,1] = data[i,:,1] - y_av
 
+    return cali_data
+
+def calibrate_tilts(data):
+    cali_data = np.empty(data.shape)
+    for i in range(len(data)):
+        # Calculate the average over the first 4 seconds (average shouldn't be affected by the crash)
+        x_av = np.sum(data[i,:32,0])/len(data[i,:32,0])
+        y_av = np.sum(data[i,:32,1])/len(data[i,:32,1])
+        z_av = np.sum(data[i,:32,2])/len(data[i,:32,2])
+        # Remove that average to centre the data
+        cali_data[i,:,0] = data[i,:,0] - x_av
+        cali_data[i,:,1] = data[i,:,1] - y_av
+        cali_data[i,:,2] = data[i,:,2] - z_av
     return cali_data
 
 ###########################################################
