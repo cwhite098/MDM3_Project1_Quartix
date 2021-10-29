@@ -50,6 +50,23 @@ def get_vel_change(incident):
     return d_v
 
 
+
+#feature to see if ignition is turned off after the alert, and if so how long it took for that to happen 
+#returns 0 if ignition is not turned off, returns an interger value of time offset if ignition is turned off
+#if there are multiple ignition offs after the alert we take the 1st value
+
+
+def ignition_off_checker(incident):
+    event_series = incident[2]['event']
+    time_offset = incident[2]['timeoffset']
+    length_events = len(event_series)
+    for event in range(length_events):
+        if event_series[event] == 'Ignition-Off' and time_offset[event] > 0:
+            ignition_time_off = time_offset[event]
+            break 
+    return ignition_time_off
+
+
 def get_max_acc(tilts):
     accs = []
     x = tilts[:,0]
