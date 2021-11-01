@@ -4,6 +4,7 @@ import numpy as np
 from tqdm import tqdm
 import pickle
 import os
+from tsfresh import extract_features
 
 def get_datum(json_filename, incident_number):
 
@@ -120,6 +121,39 @@ def get_mags(X):
             mag = np.linalg.norm(vector[:])
             mag_X[i,k] = mag
     return mag_X
+
+def tsfresh_extraction(data):
+    # Get tilts, calibrate and get mags
+    tilts = get_tilt_timeseries(data)
+    tilts = calibrate_remove_z(tilts)
+    mags = get_mags(tilts)
+    mags = mags.flatten()
+
+    # Get repeating time array
+    time = np.linspace(-6, 2.875, 72)
+    times = []
+    for i in range(len(data)):
+        times.append(time)
+    time = np.array(times)
+    time = time.flatten()
+
+    # Get ids
+    ids = []
+    for i in range(len(data)):
+        for k in range(72):
+            ids.append(i)
+    ids = np.array(ids)
+
+    # Collect into df
+    ts_data = [ids, time, mags]
+    ts_data = np.transpose(np.array(ts_data))
+    ts_df = pd.DataFrame(ts_data)
+    ts_df.columns = ['id', 'time', 'mag']
+
+    features = extract_features(ts_df, column_id="id", column_sort="time", column_kind=None, column_value=None)
+    features = features.dropna(axis=1)
+
+    return features
 
 ###########################################################
 ### Calibration Functions                               ###
