@@ -12,7 +12,7 @@ import pickle
 import os
 from tsfresh import extract_features
 
-json_filename='data/categorised.json'
+json_filename='data/uncategorised.json'
 def get_datum(json_filename, incident_number):
 
     df_categorised = pd.read_json(json_filename)
@@ -52,7 +52,7 @@ def get_datum(json_filename, incident_number):
         alert_row = zoomed_out_df[zoomed_out_df['event'] == 'Alert']
         zoomed_in_df = zoomed_in_df.append(alert_row)
         zoomed_in_df = zoomed_in_df.sort_index()
-
+        
         return [zoomed_in_df, zoomed_in_tilts, zoomed_out_df, status]
 
     elif str(json_filename) == 'data/unlinked.json':
@@ -78,10 +78,10 @@ def get_datum(json_filename, incident_number):
 
         return [zoomed_in_df, zoomed_in_tilts]
 
-incident=get_datum(json_filename, 1)
-
+#incident=get_datum(json_filename, 1)
+#print(incident)
 def keyword_time_checker(incident,keyword="Ignition-Off"):
-
+    
     data = incident[2]
     ignition_time_off = 0
 
@@ -93,12 +93,44 @@ def keyword_time_checker(incident,keyword="Ignition-Off"):
         if event_series[event] == keyword and time_offset[event] > 0:
             ignition_time_off = time_offset[event]
             break 
-
+   #print("ignition time off"+str(ignition_time_off))    
+    
+   
     return ignition_time_off
 
-def displacement_till_stop(incident):
-    time=keyword_time_checker(incident)
-    data=incident[1]
-    print(data.head)
+def displacement_till_stop(incident):#returns distance from incident to ignition off
+    data=incident[2]
     
-displacement_till_stop(incident)
+    
+    time=keyword_time_checker(incident)
+    print(time)
+    #print(time)
+    
+    #print(data.head)
+    ids = data.index[data['timeoffset'] == time].tolist()[0]
+    gridx=0
+    gridy=0
+    #gridz=0
+    gridx=data.loc[data.index[ids], 'gridx']
+    gridy=data.loc[data.index[ids], 'gridy']
+    #gridz=incident.loc[incident.index[ids], 'gridz']
+    #coordinates of stop
+    #displacement_till_stop(incident)
+    mag = gridx**2+gridy**2#+gridz**2
+    mag=mag**(1/2)
+    return mag
+    
+    
+#print(get_datum(json_filename, 1))
+#print(get_datum(json_filename, 1)[2])
+#displacement_till_stop(get_datum(json_filename, 1)))
+
+for i in range(20):
+    datum=get_datum(json_filename, i)
+    #print(keyword_time_checker(datum))
+    #time =keyword_time_checker(datum)
+    #print(time)
+    print((displacement_till_stop(datum),keyword_time_checker(datum)))
+    #print(datum)
+    #print(datum==displacement_till_stop(datum))
+    #print(str(keyword_time_checker(datum))+"     "+str(i))
