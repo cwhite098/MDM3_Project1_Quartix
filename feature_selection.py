@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Oct 26 11:04:46 2021
-
-@author: kiera
-"""
 import numpy as np
 import pandas as pd
 import pandas as pd
@@ -44,6 +38,7 @@ def get_max_vel_chng(incidentnum,data0):
     return current 
 
 def get_vel_change(incident):
+    # Gets the velocity change between 0 and 3 seconds
     data = incident[0]
     data = data['speed'].values
     d_v = data[6]-data[9]
@@ -119,6 +114,6 @@ cat_data = load_list('pickle_data', 'cat_data')
 
 features = extract_features(cat_data)
 
-    
+print(features[:,1])
     
     
