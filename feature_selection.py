@@ -129,7 +129,7 @@ def extract_features(data):
         distance_list.append(distance)
 
 
-    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list]))
+    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, distance_list]))
 
     return features
 
