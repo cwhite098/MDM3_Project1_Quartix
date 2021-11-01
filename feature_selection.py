@@ -146,7 +146,7 @@ def extract_features(data):
         st = check_keyword(data[incident], keyword='Stop')
         d_v = get_vel_change(data[incident])
         max_acc = get_max_acc(tilts_no_z[incident])
-        ignition_time = ignition_off_checker(data[incident])
+        ignition_time = keyword_time_checker(data[incident],keyword="Ignition-Off")
         distance = distance_travelled(data[incident])
 
         ignition_event_list.append(ig)
