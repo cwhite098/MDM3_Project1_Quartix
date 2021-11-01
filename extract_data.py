@@ -4,6 +4,7 @@ import numpy as np
 from tqdm import tqdm
 import pickle
 import os
+from tsfresh import extract_features
 
 def get_datum(json_filename, incident_number):
 
@@ -120,6 +121,80 @@ def get_mags(X):
             mag = np.linalg.norm(vector[:])
             mag_X[i,k] = mag
     return mag_X
+
+def tsfresh_extraction(data):
+    # Get tilts, calibrate and get mags
+    tilts = get_tilt_timeseries(data)
+    tilts = calibrate_remove_z(tilts)
+    mags = get_mags(tilts)
+    mags = mags.flatten()
+
+    # Get repeating time array
+    time = np.linspace(-6, 2.875, 72)
+    times = []
+    for i in range(len(data)):
+        times.append(time)
+    time = np.array(times)
+    time = time.flatten()
+
+    # Get ids
+    ids = []
+    for i in range(len(data)):
+        for k in range(72):
+            ids.append(i)
+    ids = np.array(ids)
+
+    # Collect into df
+    ts_data = [ids, time, mags]
+    ts_data = np.transpose(np.array(ts_data))
+    ts_df = pd.DataFrame(ts_data)
+    ts_df.columns = ['id', 'time', 'mag']
+
+    features = extract_features(ts_df, column_id="id", column_sort="time", column_kind=None, column_value=None)
+    features = features.dropna(axis=1)
+
+    return features
+
+###########################################################
+### Calibration Functions                               ###
+### Used to calibrate tilt data + adjust for gravity    ###
+###########################################################
+def calibrate_remove_z(data):
+    cali_data = np.empty((int(data.shape[0]), int(data.shape[1]), 2))
+    z_dirs = []
+    for i in range(len(data)):
+        # Calculate the average over the first 4 seconds (average shouldn't be affected by the crash)
+        x_av = np.sum(data[i,:32,0])/len(data[i,:32,0])
+        y_av = np.sum(data[i,:32,1])/len(data[i,:32,1])
+        z_av = np.sum(data[i,:32,2])/len(data[i,:32,2])
+
+        max_av = np.argmax(np.abs([x_av, y_av, z_av])) # find the direction with largest absolute value (should be z)
+        z_dirs.append(max_av)
+
+        if max_av == 0:
+            cali_data[i,:,0] = data[i,:,1] - y_av
+            cali_data[i,:,1] = data[i,:,2] - z_av
+        if max_av == 1:
+            cali_data[i,:,0] = data[i,:,0] - x_av
+            cali_data[i,:,1] = data[i,:,2] - z_av
+        if max_av == 2:
+            cali_data[i,:,0] = data[i,:,0] - x_av
+            cali_data[i,:,1] = data[i,:,1] - y_av
+
+    return cali_data
+
+def calibrate_tilts(data):
+    cali_data = np.empty(data.shape)
+    for i in range(len(data)):
+        # Calculate the average over the first 4 seconds (average shouldn't be affected by the crash)
+        x_av = np.sum(data[i,:32,0])/len(data[i,:32,0])
+        y_av = np.sum(data[i,:32,1])/len(data[i,:32,1])
+        z_av = np.sum(data[i,:32,2])/len(data[i,:32,2])
+        # Remove that average to centre the data
+        cali_data[i,:,0] = data[i,:,0] - x_av
+        cali_data[i,:,1] = data[i,:,1] - y_av
+        cali_data[i,:,2] = data[i,:,2] - z_av
+    return cali_data
 
 ###########################################################
 ### PICKLE FUNCTIONS                                    ###
