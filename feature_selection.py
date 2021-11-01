@@ -13,6 +13,9 @@ from extract_data import *
 from sklearn.metrics import confusion_matrix
 
 
+
+
+#returns frequency of keyword
 def check_keyword(incident, keyword="Ignition-Off"):
     # Returns the number of ignition-off events for an incident
     r = 0
@@ -54,7 +57,9 @@ def get_vel_change(incident):
 #feature to see if ignition is turned off after the alert, and if so how long it took for that to happen 
 #returns 0 if ignition is not turned off, returns an interger value of time offset if ignition is turned off
 #if there are multiple ignition offs after the alert we take the 1st value
-def ignition_off_checker(incident):
+#keywordtimechecker(incident)    
+#replace change kwarg for time offset of other keywords
+def keyword_time_checker(incident,keyword="Ignition-Off"):
 
     data = incident[2]
     ignition_time_off = 0
@@ -64,12 +69,16 @@ def ignition_off_checker(incident):
     length_events = len(event_series)
 
     for event in range(length_events):
-        if event_series[event] == 'Ignition-Off' and time_offset[event] > 0:
+        if event_series[event] == keyword and time_offset[event] > 0:
             ignition_time_off = time_offset[event]
             break 
 
     return ignition_time_off
 
+def displacement_tillstop(incident):
+    time=keyword_time_checker(incident)
+    data=incident[1]
+    
 
 def get_max_acc(tilts):
     accs = []
