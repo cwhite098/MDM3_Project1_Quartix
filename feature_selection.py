@@ -137,7 +137,3 @@ def extract_features(data):
 cat_data = load_list('pickle_data', 'cat_data')
 
 features = extract_features(cat_data)
-
-    
-    
-    
