@@ -83,6 +83,22 @@ def get_max_acc(tilts):
 
     return np.max(accs)
 
+def distance_travelled(incident):  # calculates the distance travelled after the alert using zoomed out data
+    # grab zoomed out data
+    data = incident[2]
+
+    # find x and y position of where the car ends up 
+    xpos = data['gridx'].iloc[-1]
+    ypos = data['gridy'].iloc[-1]
+    xpos = xpos.item()
+    ypos = ypos.item()
+
+    # create vector of that position and find magnitude of it (distance)
+    pos = np.array([xpos,ypos])
+    distance = np.linalg.norm(pos)
+
+    return distance
+
 
 def extract_features(data):
     # Give data (cat/uncat) then recieve features array
@@ -92,6 +108,7 @@ def extract_features(data):
     d_v_list = []
     max_acc_list = []
     ignition_times_list = []
+    distance_list = []
 
     tilts = get_tilt_timeseries(data)
     tilts_no_z = calibrate_remove_z(tilts)
@@ -102,12 +119,14 @@ def extract_features(data):
         d_v = get_vel_change(data[incident])
         max_acc = get_max_acc(tilts_no_z[incident])
         ignition_time = ignition_off_checker(data[incident])
+        distance = distance_travelled(data[incident])
 
         ignition_event_list.append(ig)
         stop_event_list.append(st)
         d_v_list.append(d_v)
         max_acc_list.append(max_acc)
         ignition_times_list.append(ignition_time)
+        distance_list.append(distance)
 
 
     features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list]))
