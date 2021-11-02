@@ -1,9 +1,3 @@
-
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Oct 26 11:04:46 2021
-@author: kiera
-"""
 import numpy as np
 import pandas as pd
 import pandas as pd
@@ -11,8 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from extract_data import *
 from sklearn.metrics import confusion_matrix
-
-
 
 
 #returns frequency of keyword
@@ -165,3 +157,4 @@ def extract_features(data):
 cat_data = load_list('pickle_data', 'cat_data')
 
 features = extract_features(cat_data)
+print(features)
