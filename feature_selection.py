@@ -68,6 +68,9 @@ def keyword_time_checker(incident,keyword="Ignition-Off"):
     return ignition_time_off
 
 
+
+
+
 def displacement_till_stop(incident):#returns distance from incident to ignition off
     data=incident[2]
     
@@ -89,6 +92,11 @@ def displacement_till_stop(incident):#returns distance from incident to ignition
     mag = gridx**2+gridy**2#+gridz**2
     mag=mag**(1/2)
     return mag
+
+def get_std_xtilt(tilts):    
+    return np.std(tilts[:,0])
+def get_std_ytilt(tilts):
+    return np.std(tilts[:,1])
 
 
 def get_max_acc(tilts):
@@ -130,7 +138,9 @@ def extract_features(data):
     ignition_times_list = []
     stop_time_list = []
     distance_list = []
-
+    xstd = []
+    ystd = []
+    
     tilts = get_tilt_timeseries(data)
     tilts_no_z = calibrate_remove_z(tilts)
 
@@ -142,7 +152,7 @@ def extract_features(data):
         ignition_time = keyword_time_checker(data[incident],keyword="Ignition-Off")
         stop_time = keyword_time_checker(data[incident],keyword="Stop")
         distance = distance_travelled(data[incident])
-
+        
         ignition_event_list.append(ig)
         stop_event_list.append(st)
         d_v_list.append(d_v)
@@ -150,7 +160,8 @@ def extract_features(data):
         ignition_times_list.append(ignition_time)
         stop_time_list.append(stop_time)
         distance_list.append(distance)
-
+        xstd.append(get_std_xtilt(tilts_no_z[incident]))
+        ystd.append(get_std_ytilt(tilts_no_z[incident]))
 
     features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, stop_time_list, distance_list]))
 
