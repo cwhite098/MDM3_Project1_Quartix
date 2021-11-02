@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from extract_data import *
 from sklearn.metrics import confusion_matrix
+from numpy.fft import rfft,rfftfreq,fft
+import spectrum
 
 
 #returns frequency of keyword
@@ -26,10 +28,10 @@ def max_vel_0_time(incident):#maximum time velocity is 0
     count = 0
     maximum =0
     for i in speed:
-        if speed == 0:
+        if i == 0:
             found = True
             count+=1
-        if speed != 0 and found:
+        if i != 0 and found:
             found=False
             
             if count>maximum:
@@ -85,9 +87,6 @@ def keyword_time_checker(incident,keyword="Ignition-Off"):
             break 
 
     return ignition_time_off
-
-
-
 
 
 def displacement_till_stop(incident):#returns distance from incident to ignition off
