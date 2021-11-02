@@ -128,6 +128,7 @@ def extract_features(data):
     d_v_list = []
     max_acc_list = []
     ignition_times_list = []
+    stop_time_list = []
     distance_list = []
 
     tilts = get_tilt_timeseries(data)
@@ -139,6 +140,7 @@ def extract_features(data):
         d_v = get_vel_change(data[incident])
         max_acc = get_max_acc(tilts_no_z[incident])
         ignition_time = keyword_time_checker(data[incident],keyword="Ignition-Off")
+        stop_time = keyword_time_checker(data[incident],keyword="Stop")
         distance = distance_travelled(data[incident])
 
         ignition_event_list.append(ig)
@@ -146,10 +148,11 @@ def extract_features(data):
         d_v_list.append(d_v)
         max_acc_list.append(max_acc)
         ignition_times_list.append(ignition_time)
+        stop_time_list.append(stop_time)
         distance_list.append(distance)
 
 
-    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, distance_list]))
+    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, stop_time_list, distance_list]))
 
     return features
 
@@ -157,4 +160,3 @@ def extract_features(data):
 cat_data = load_list('pickle_data', 'cat_data')
 
 features = extract_features(cat_data)
-print(features)
