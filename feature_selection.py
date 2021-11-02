@@ -20,7 +20,25 @@ def check_keyword(incident, keyword="Ignition-Off"):
 
     return r #returns 0 if no keyword found
 
-
+def max_vel_0_time(incident):#maximum time velocity is 0
+    speed = incident[0]["speed"].values
+    found = False
+    count = 0
+    maximum =0
+    for i in speed:
+        if speed == 0:
+            found = True
+            count+=1
+        if speed != 0 and found:
+            found=False
+            
+            if count>maximum:
+                maximum=count
+            count = 0
+                
+    return maximum
+            
+            
 def get_max_vel_chng(incidentnum,data0):
     current=0
     data0 =data0["speed"].values
@@ -51,6 +69,7 @@ def get_vel_change(incident):
 #if there are multiple ignition offs after the alert we take the 1st value
 #keywordtimechecker(incident)    
 #replace change kwarg for time offset of other keywords
+    
 def keyword_time_checker(incident,keyword="Ignition-Off"):
 
     data = incident[2]
@@ -140,7 +159,7 @@ def extract_features(data):
     distance_list = []
     xstd = []
     ystd = []
-    
+    times_of_0_vel = []
     tilts = get_tilt_timeseries(data)
     tilts_no_z = calibrate_remove_z(tilts)
 
@@ -162,8 +181,8 @@ def extract_features(data):
         distance_list.append(distance)
         xstd.append(get_std_xtilt(tilts_no_z[incident]))
         ystd.append(get_std_ytilt(tilts_no_z[incident]))
-        
-    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, stop_time_list, distance_list,xstd,ystd]))
+        times_of_0_vel.append(max_vel_0_time(data[incident]))
+    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, stop_time_list, distance_list, xstd, ystd, times_of_0_vel]))
 
     return features
 
