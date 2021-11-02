@@ -69,7 +69,7 @@ def get_vel_change(incident):
 #if there are multiple ignition offs after the alert we take the 1st value
 #keywordtimechecker(incident)    
 #replace change kwarg for time offset of other keywords
-    
+
 def keyword_time_checker(incident,keyword="Ignition-Off"):
 
     data = incident[2]
@@ -146,6 +146,32 @@ def distance_travelled(incident):  # calculates the distance travelled after the
 
     return distance
 
+#function to return four largest powers
+def periodogram_feauture_extractor(tilts_no_z):
+    number_data_points = 72
+    s_s = 1/8 #sample spacing
+    sum_tilts = tilts_no_z[:,0] + tilts_no_z[:,1]
+    fourier_freqs = rfftfreq(number_data_points,d=s_s)
+    periodogram_data = spectrum.speriodogram(sum_tilts,NFFT=number_data_points)
+    sorted_periodogram_data = sorted(periodogram_data,reverse=True)
+    largest_powers = sorted_periodogram_data[0:4]
+    corresponding_frequencies = []
+    for power in range(4):
+        index = []
+        if largest_powers[power] == 0:
+            corresponding_frequencies.append(0) #if the power is 0 we return a frequency of 0
+        else:
+            #if we have multiple frequncies with the same exact powers we return the smallest frequency
+            index = np.where(periodogram_data == largest_powers[power])
+            corresponding_frequencies.append(fourier_freqs[index[0][0]])
+
+    power_1 = largest_powers[0]
+    power_2 = largest_powers[1]
+    power_3 = largest_powers[2]
+    power_4 = largest_powers[3]
+
+    return power_1,power_2,power_3,power_4
+
 
 def extract_features(data):
     # Give data (cat/uncat) then recieve features array
@@ -160,6 +186,12 @@ def extract_features(data):
     xstd = []
     ystd = []
     times_of_0_vel = []
+    power_1_list = []
+    power_2_list= []
+    power_3_list = []
+    power_4_list = []
+
+
     tilts = get_tilt_timeseries(data)
     tilts_no_z = calibrate_remove_z(tilts)
 
@@ -171,6 +203,7 @@ def extract_features(data):
         ignition_time = keyword_time_checker(data[incident],keyword="Ignition-Off")
         stop_time = keyword_time_checker(data[incident],keyword="Stop")
         distance = distance_travelled(data[incident])
+        power_1,power_2,power_3,power_4 = periodogram_feauture_extractor(tilts_no_z[incident])
         
         ignition_event_list.append(ig)
         stop_event_list.append(st)
@@ -182,7 +215,12 @@ def extract_features(data):
         xstd.append(get_std_xtilt(tilts_no_z[incident]))
         ystd.append(get_std_ytilt(tilts_no_z[incident]))
         times_of_0_vel.append(max_vel_0_time(data[incident]))
-    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, stop_time_list, distance_list, xstd, ystd, times_of_0_vel]))
+        power_1_list.append(power_1)
+        power_2_list.append(power_2)
+        power_3_list.append(power_3)
+        power_4_list.append(power_4)
+        
+    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, stop_time_list, distance_list,xstd,ystd,times_of_0_vel,power_1_list,power_2_list,power_3_list,power_4_list]))
 
     return features
 
