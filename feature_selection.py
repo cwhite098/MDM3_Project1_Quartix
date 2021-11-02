@@ -162,8 +162,8 @@ def extract_features(data):
         distance_list.append(distance)
         xstd.append(get_std_xtilt(tilts_no_z[incident]))
         ystd.append(get_std_ytilt(tilts_no_z[incident]))
-
-    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, stop_time_list, distance_list]))
+        
+    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, stop_time_list, distance_list,xstd,ystd]))
 
     return features
 
