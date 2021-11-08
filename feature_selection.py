@@ -183,8 +183,15 @@ def periodogram_feauture_extractor(tilts_no_z):
     power_2 = largest_powers[1]
     power_3 = largest_powers[2]
     power_4 = largest_powers[3]
+    frequency_1 = corresponding_frequencies[0]
+    frequency_2 = corresponding_frequencies[1]
+    frequency_3 = corresponding_frequencies[2]
+    frequency_4 = corresponding_frequencies[3]
+    
+    
 
-    return power_1,power_2,power_3,power_4
+    return power_1,power_2,power_3,power_4,frequency_1,frequency_2,frequency_3,frequency_4
+
 
 
 def extract_features(data):
@@ -205,6 +212,10 @@ def extract_features(data):
     power_3_list = []
     power_4_list = []
     mag_spike_difference_list = []
+    frequency_1_list = []
+    frequency_2_list = []
+    frequency_3_list = []
+    frequency_4_list = [] 
 
 
     tilts = get_tilt_timeseries(data)
@@ -218,7 +229,7 @@ def extract_features(data):
         ignition_time = keyword_time_checker(data[incident],keyword="Ignition-Off")
         stop_time = keyword_time_checker(data[incident],keyword="Stop")
         distance = distance_travelled(data[incident])
-        power_1,power_2,power_3,power_4 = periodogram_feauture_extractor(tilts_no_z[incident])
+        power_1,power_2,power_3,power_4,frequency_1,frequency_2,frequency_3,frequency_4 = periodogram_feauture_extractor(tilts_no_z[incident])
 
         difference = mag_spike_difference(tilts_no_z[incident])
         
@@ -237,8 +248,13 @@ def extract_features(data):
         power_3_list.append(power_3)
         power_4_list.append(power_4)
         mag_spike_difference_list.append(difference)
+        frequency_1_list.append(frequency_1)
+        frequency_2_list.append(frequency_2)
+        frequency_3_list.append(frequency_3)
+        frequency_4_list.append(frequency_4)
         
-    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, stop_time_list, distance_list,xstd,ystd,times_of_0_vel,power_1_list,power_2_list,power_3_list,power_4_list, mag_spike_difference_list]))
+        
+    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, stop_time_list, distance_list,xstd,ystd,times_of_0_vel,power_1_list,power_2_list,power_3_list,power_4_list, mag_spike_difference_list, frequency_1_list, frequency_2_list, frequency_3_list,frequency_4_list]))
 
     return features
 
