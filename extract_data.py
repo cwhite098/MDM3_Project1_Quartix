@@ -100,17 +100,6 @@ def get_tilt_timeseries(data):
     X = np.reshape(X,(len(data),72,3))
     return X
 
-def get_tilt_past_alert(data):
-    # Extracts timeseries of tilts for dataset only after alert
-    X = np.empty((len(data),24,3))
-    for i in range(len(data)):
-        incident = data[i]
-        tilts = np.array(incident[1])
-        tilts = tilts[48:,1:]
-        X[i,:,:] = tilts
-    X = np.reshape(X,(len(data),24,3))
-    return X
-
 def get_labels(cat_data):
     y_test = []
     for i in range(len(cat_data)):
