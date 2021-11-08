@@ -40,33 +40,14 @@ def max_vel_0_time(incident):#maximum time velocity is 0
                 
     return maximum
 
-def mag_spike_difference(incident): # a measure which captures whether or not there are a few spikes in acceleration or just one big one
+def mag_spike_difference(tilts): # a measure which captures whether or not there are a few spikes in acceleration or just one big one
     
-    data = incident[1] # using high resolution data
-    
-    # calibrate (uses chris's code in the context of a single incident)
-    x_av = np.sum(data[:32,0])/len(data[:32,0])
-    y_av = np.sum(data[:32,1])/len(data[:32,1])
-    z_av = np.sum(data[:32,2])/len(data[:32,2])
-
-    max_av = np.argmax(np.abs([x_av, y_av, z_av]))
-
-    if max_av == 0:
-        data[:,0] = data[:,1] - y_av
-        data[:,1] = data[:,2] - z_av
-    elif max_av == 1:
-        data[:,0] = data[:,0] - x_av
-        data[:,1] = data[:,2] - z_av
-    else:
-        data[:,0] = data[:,0] - x_av
-        data[:,1] = data[:,1] - y_av
-
     # magnitude at each time step
-    data = np.linalg.norm(data, axis=1)
+    mags = np.linalg.norm(tilts, axis=1)
 
     # get top 5 mags
-    sorted_data = np.argsort(data)
-    top_5 = sorted_data[-5:]
+    sorted_mags = np.argsort(mags)
+    top_5 = sorted_mags[-5:]
     
     # calculate the difference between the max mag and the average of the next 4 highest
     average = np.average(top_5[1:])
@@ -238,7 +219,8 @@ def extract_features(data):
         stop_time = keyword_time_checker(data[incident],keyword="Stop")
         distance = distance_travelled(data[incident])
         power_1,power_2,power_3,power_4 = periodogram_feauture_extractor(tilts_no_z[incident])
-        difference = mag_spike_difference(incident)
+
+        difference = mag_spike_difference(tilts_no_z[incident])
         
         ignition_event_list.append(ig)
         stop_event_list.append(st)
