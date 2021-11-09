@@ -3,14 +3,13 @@ from sklearn.metrics import confusion_matrix
 from numpy.fft import rfft,rfftfreq,fft
 import numpy as np
 import pandas as pd
-import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import spectrum
 
 """ vvv KEYWORD FUNCTIONS vvv """
 
-def keyword_freq(incident, keyword):
+def keyword_freq(incident, keyword): # returns the frequency count of a given keyword
 
     freq = 0    # frequency of keyword
     data = incident[2]
@@ -22,7 +21,7 @@ def keyword_freq(incident, keyword):
 
     return freq 
 
-def keyword_time_offset(incident, keyword):
+def keyword_time_offset(incident, keyword): # returns the time offset between the alert and a given keyword
 
     data = incident[2]
     time = 0    # time offset between keyword and alert (can only be positive i.e. keyword must be after alert)
@@ -40,7 +39,10 @@ def keyword_time_offset(incident, keyword):
 
 """ ^^^ KEYWORD FUNCTIONS ^^^ """
 
-def max_vel_0_time(incident):#maximum time velocity is 0
+""" vvv DISPLACEMENT, VELOCITY, ACCELERATION FUNCTIONS vvv """
+
+def max_stop_time(incident): # returns the longest time the car is at rest for
+
     speed = incident[0]["speed"].values
     found = False
     count = 0
@@ -58,49 +60,31 @@ def max_vel_0_time(incident):#maximum time velocity is 0
                 
     return maximum
 
-def mag_spike_difference(tilts): # a measure which captures whether or not there are a few spikes in acceleration or just one big one
+def get_vel_change(incident): # returns the change in velocity between the alert and t = 3
     
-    # magnitude at each time step
-    mags = np.linalg.norm(tilts, axis=1)
-
-    # get top 5 mags
-    sorted_mags = np.argsort(mags)
-    top_5 = sorted_mags[-5:]
-    
-    # calculate the difference between the max mag and the average of the next 4 highest
-    average = np.average(top_5[1:])
-    difference = top_5[0]-average
-
-    return difference            
-            
-def get_max_vel_chng(incidentnum,data0):
-    current=0
-    data0 =data0["speed"].values
-    #print(data0[-1])
-    #print(data0)
-    #print(type(data0))
-    
-    for i in range(8):
-        #print(i)
-        if(i<7):
-            #print(i)
-            print(abs(data0[i]-data0[i+1]))
-            if abs(data0[i]-data0[i+1])>current:
-               # print(abs(data0[i]-data0[i+1]))
-                current = abs(data0[i]-data0[i+1])
-    return current 
-
-def get_vel_change(incident):
     data = incident[0]
     data = data['speed'].values
     d_v = data[6]-data[9]
+    
     return d_v
 
-def displacement_till_stop(incident):#returns distance from incident to ignition off
+def get_max_vel_chng(incidentnum,data0): # UNFINISHED
+
+    current=0
+    data0 =data0["speed"].values
+
+    for i in range(8):
+        if(i<7):
+            print(abs(data0[i]-data0[i+1]))
+            if abs(data0[i]-data0[i+1])>current:
+                current = abs(data0[i]-data0[i+1])
+    return current 
+
+def displacement_till_stop(incident):#returns distance from incident to first ignition off
     data=incident[2]
     
     
-    time=keyword_time_checker(incident)
+    time=keyword_time_offset(incident, 'Ignition-Off')
     print(time)
     #print(time)
     
@@ -117,6 +101,41 @@ def displacement_till_stop(incident):#returns distance from incident to ignition
     mag = gridx**2+gridy**2#+gridz**2
     mag=mag**(1/2)
     return mag
+
+def distance_travelled(incident):  # calculates the distance travelled after the alert 
+    # grab zoomed out data
+    data = incident[2]
+
+    # find x and y position of where the car ends up 
+    xpos = data['gridx'].iloc[-1]
+    ypos = data['gridy'].iloc[-1]
+    xpos = xpos.item()
+    ypos = ypos.item()
+
+    # create vector of that position and find magnitude of it (distance)
+    pos = np.array([xpos,ypos])
+    distance = np.linalg.norm(pos)
+
+    return distance
+
+""" ^^^ DISPLACEMENT, VELOCITY, ACCELERATION FUNCTIONS ^^^ """
+
+""" vvv TILTS FUNCTIONS vvv """
+
+def mag_spike_difference(tilts): # a measure which captures whether or not there are a few spikes in acceleration or just one big one
+    
+    # magnitude at each time step
+    mags = np.linalg.norm(tilts, axis=1)
+
+    # get top 5 mags
+    sorted_mags = np.argsort(mags)
+    top_5 = sorted_mags[-5:]
+    
+    # calculate the difference between the max mag and the average of the next 4 highest
+    average = np.average(top_5[1:])
+    difference = top_5[0]-average
+
+    return difference            
 
 def get_std_xtilt(tilts):    
     return np.std(tilts[:,0])
@@ -135,22 +154,6 @@ def get_max_acc(tilts):
         accs.append(acc)
 
     return np.max(accs)
-
-def distance_travelled(incident):  # calculates the distance travelled after the alert using zoomed out data
-    # grab zoomed out data
-    data = incident[2]
-
-    # find x and y position of where the car ends up 
-    xpos = data['gridx'].iloc[-1]
-    ypos = data['gridy'].iloc[-1]
-    xpos = xpos.item()
-    ypos = ypos.item()
-
-    # create vector of that position and find magnitude of it (distance)
-    pos = np.array([xpos,ypos])
-    distance = np.linalg.norm(pos)
-
-    return distance
 
 #function to return four largest powers and corresponding frequencies
 #usage: x_or_y = 0 for x values, 1 for y values
@@ -185,6 +188,7 @@ def periodogram_feauture_extractor(tilts_no_z,x_or_y):
 
     return power_1,power_2,power_3,power_4,frequency_1,frequency_2,frequency_3,frequency_4
 
+""" ^^^ TILTS FUNCTIONS ^^^ """
 
 def extract_features(data):
     # Give data (cat/uncat), returns features array
@@ -250,7 +254,7 @@ def extract_features(data):
         distance_list.append(distance)
         xstd.append(get_std_xtilt(tilts_no_z[incident]))
         ystd.append(get_std_ytilt(tilts_no_z[incident]))
-        times_of_0_vel.append(max_vel_0_time(data[incident]))
+        times_of_0_vel.append(max_stop_time(data[incident]))
         x_power_1_list.append(x_power_1)
         x_power_2_list.append(x_power_2)
         x_power_3_list.append(x_power_3)
@@ -278,7 +282,8 @@ def extract_features(data):
 
     return features
 
-
+# load in the data
 cat_data = load_list('pickle_data', 'cat_data')
 
+# get the features 
 features = extract_features(cat_data)
