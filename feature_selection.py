@@ -271,7 +271,11 @@ def extract_features(data):
         y_power_4_list.append(y_power_4)
         
         
-    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, stop_time_list, distance_list,xstd,ystd,times_of_0_vel,x_power_1_list,x_power_2_list,x_power_3_list,x_power_4_list, mag_spike_difference_list, x_frequency_1_list, x_frequency_2_list, x_frequency_3_list,x_frequency_4_list,y_power_1_list,y_power_2_list,y_power_3_list,y_power_4_list,y_frequency_1_list, y_frequency_2_list, y_frequency_3_list,y_frequency_4_list]))
+    features = np.transpose(np.array([ignition_event_list, stop_event_list, d_v_list, max_acc_list, ignition_times_list, stop_time_list, 
+                                        distance_list, xstd, ystd, times_of_0_vel,x_power_1_list,x_power_2_list ,x_power_3_list, x_power_4_list, 
+                                        mag_spike_difference_list, x_frequency_1_list, x_frequency_2_list, x_frequency_3_list, x_frequency_4_list,
+                                        y_power_1_list, y_power_2_list, y_power_3_list, y_power_4_list, y_frequency_1_list, y_frequency_2_list, 
+                                        y_frequency_3_list, y_frequency_4_list]))
 
     return features
 
