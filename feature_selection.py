@@ -68,9 +68,9 @@ def get_vel_change(incident): # returns the change in velocity between the alert
     
     return d_v
 
-def get_max_vel_chng(incidentnum,data0): # UNFINISHED
-
-    current=0
+def get_max_vel_chng(incident): # UNFINISHED
+    current = 0
+    data0 = incident[0]
     data0 =data0["speed"].values
 
     for i in range(8):
@@ -221,7 +221,7 @@ def extract_features(data):
     y_frequency_2_list = []
     y_frequency_3_list = []
     y_frequency_4_list = [] 
-
+    max_vel_changes = []
 
     tilts = get_tilt_timeseries(data)
     tilts_no_z = calibrate_remove_z(tilts)
@@ -247,7 +247,8 @@ def extract_features(data):
         stop_freq_list.append(stop_freq)
         ignition_times_list.append(ignition_time)
         stop_time_list.append(stop_time)
-
+        
+        max_vel_changes.append(get_max_vel_chng(data[incident]))
         d_v_list.append(d_v)
         max_acc_list.append(max_acc)
         
