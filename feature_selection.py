@@ -279,7 +279,7 @@ def extract_features(data):
                                         distance_list, xstd, ystd, times_of_0_vel,x_power_1_list,x_power_2_list ,x_power_3_list, x_power_4_list, 
                                         mag_spike_difference_list, x_frequency_1_list, x_frequency_2_list, x_frequency_3_list, x_frequency_4_list,
                                         y_power_1_list, y_power_2_list, y_power_3_list, y_power_4_list, y_frequency_1_list, y_frequency_2_list, 
-                                        y_frequency_3_list, y_frequency_4_list]))
+                                        y_frequency_3_list, y_frequency_4_list, max_vel_changes]))
 
     return features
 
