@@ -76,7 +76,6 @@ def get_max_vel_chng(incident): # returns the largest change in speed in the zoo
 
     for i in range(8):
         if(i<7):
-            print(abs(data0[i]-data0[i+1]))
             if abs(data0[i]-data0[i+1])>current:
                 current = abs(data0[i]-data0[i+1])
     return current 
