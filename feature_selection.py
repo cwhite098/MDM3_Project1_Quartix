@@ -1,3 +1,7 @@
+# method for feature selection is from the following sources
+# idea: http://venom.cs.utsa.edu/dmz/techrep/2007/CS-TR-2007-011.pdf
+# python implementation: https://stats.stackexchange.com/questions/108743/methods-in-r-or-python-to-perform-feature-selection-in-unsupervised-learning 
+
 from PFA import *
 from feature_extraction import *
 import numpy as np
