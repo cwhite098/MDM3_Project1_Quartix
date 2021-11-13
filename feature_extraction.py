@@ -182,7 +182,9 @@ def periodogram_feauture_extractor(tilts_no_z,x_or_y): # returns four largest po
 
 """ ^^^ TILT FUNCTIONS (all use calibrated tilts) ^^^ """
 
-def extract_features(data): # returns features
+feature_count = 29
+
+def extract_features(data, desired_features = range(29)): # returns features
 
     """ vvv initialise lists and get calibrated tilts vvv """
 
@@ -291,7 +293,7 @@ def extract_features(data): # returns features
                                       y_power_1_list, y_power_2_list, y_power_3_list, y_power_4_list,
                                       y_frequency_1_list, y_frequency_2_list, y_frequency_3_list, y_frequency_4_list]))
                                 
-    return features
+    return features[desired_features]
 
 # load in the data
 cat_data = load_list('pickle_data', 'cat_data')
