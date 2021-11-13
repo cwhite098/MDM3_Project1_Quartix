@@ -12,7 +12,7 @@ features = extract_features(uncat_data)
 
 # run pfa many times and collect matrix of indices which pfa suggests through the given iterations are most important features
 iterations = 100
-n_features=20
+n_features=10
 count = 0
 column_indices_mat = np.empty([iterations, n_features])
 
