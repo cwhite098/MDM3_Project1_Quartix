@@ -254,8 +254,7 @@ def extract_features(data, desired_features = range(29), unlinked = False): # re
 
         if unlinked == False:
             vel_change_list.append(get_vel_change(data[incident]))
-
-        max_vel_change_list.append(get_max_vel_chng(data[incident]))
+            max_vel_change_list.append(get_max_vel_chng(data[incident]))
 
         if unlinked == False:    
             distance_till_ig_off_list.append(distance_till_ig_off(data[incident]))
@@ -288,21 +287,29 @@ def extract_features(data, desired_features = range(29), unlinked = False): # re
         y_frequency_3_list.append(y_frequency_3)
         y_frequency_4_list.append(y_frequency_4)
 
+
     """ ^^^ fill lists with data ^^^ """    
 
     # add each list to features array    
-    features = np.transpose(np.array([ignition_freq_list, stop_freq_list, ignition_times_list, stop_time_list,
-                                      max_stop_times_list, vel_change_list, max_vel_change_list, distance_till_ig_off_list, distance_travelled_list,
-                                      mag_spike_difference_list, x_std_dev_list, y_std_dev_list, max_acc_list,
-                                      x_power_1_list, x_power_2_list, x_power_3_list, x_power_4_list,
-                                      x_frequency_1_list, x_frequency_2_list, x_frequency_3_list, x_frequency_4_list,
-                                      y_power_1_list, y_power_2_list, y_power_3_list, y_power_4_list,
-                                      y_frequency_1_list, y_frequency_2_list, y_frequency_3_list, y_frequency_4_list]))
+    features_list = [ignition_freq_list, stop_freq_list, ignition_times_list, stop_time_list,
+                    max_stop_times_list, vel_change_list, max_vel_change_list, distance_till_ig_off_list, distance_travelled_list,
+                    mag_spike_difference_list, x_std_dev_list, y_std_dev_list, max_acc_list,
+                    x_power_1_list, x_power_2_list, x_power_3_list, x_power_4_list,
+                    x_frequency_1_list, x_frequency_2_list, x_frequency_3_list, x_frequency_4_list,
+                    y_power_1_list, y_power_2_list, y_power_3_list, y_power_4_list,
+                    y_frequency_1_list, y_frequency_2_list, y_frequency_3_list, y_frequency_4_list]
+
+    desired_feature_list = [features_list[i] for i in desired_features]
+
+    features = np.transpose(np.array(desired_feature_list))
                                 
-    return features[desired_features]
+    return features
 
 # load in the data
 cat_data = load_list('pickle_data', 'cat_data')
+unlinked_data = load_list('pickle_data', 'unlinked_data')
+
+unlinked_features = [4,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28]
 
 # get the features 
-features = extract_features(cat_data)
+train_x = extract_features(unlinked_data, unlinked_features, True)
