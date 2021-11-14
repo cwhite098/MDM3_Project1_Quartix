@@ -184,7 +184,7 @@ def periodogram_feauture_extractor(tilts_no_z,x_or_y): # returns four largest po
 
 feature_count = 29
 
-def extract_features(data, desired_features = range(29)): # returns features
+def extract_features(data, desired_features = range(29), unlinked = False): # returns features
 
     """ vvv initialise lists and get calibrated tilts vvv """
 
@@ -243,17 +243,23 @@ def extract_features(data, desired_features = range(29)): # returns features
         y_power_1,y_power_2,y_power_3,y_power_4,y_frequency_1,y_frequency_2,y_frequency_3,y_frequency_4 = periodogram_feauture_extractor(tilts_no_z[incident],1)
         
         # update keyword lists
-        ignition_freq_list.append(keyword_freq(data[incident], 'Ignition-Off'))
-        stop_freq_list.append(keyword_freq(data[incident], 'Stop'))
-        ignition_times_list.append(keyword_time_offset(data[incident], 'Ignition-Off'))
-        stop_time_list.append(keyword_time_offset(data[incident], 'Stop'))
+        if unlinked == True:
+            ignition_freq_list.append(keyword_freq(data[incident], 'Ignition-Off'))
+            stop_freq_list.append(keyword_freq(data[incident], 'Stop'))
+            ignition_times_list.append(keyword_time_offset(data[incident], 'Ignition-Off'))
+            stop_time_list.append(keyword_time_offset(data[incident], 'Stop'))
         
         # update distance and speed lists
         max_stop_times_list.append(max_stop_time(data[incident]))
-        vel_change_list.append(get_vel_change(data[incident]))
+
+        if unlinked == True:
+            vel_change_list.append(get_vel_change(data[incident]))
+
         max_vel_change_list.append(get_max_vel_chng(data[incident]))
-        distance_till_ig_off_list.append(distance_till_ig_off(data[incident]))
-        distance_travelled_list.append(distance_travelled(data[incident]))
+
+        if unlinked == True:    
+            distance_till_ig_off_list.append(distance_till_ig_off(data[incident]))
+            distance_travelled_list.append(distance_travelled(data[incident]))
         
         # update tilts lists
         mag_spike_difference_list.append(mag_spike_difference(tilts_no_z[incident]))
