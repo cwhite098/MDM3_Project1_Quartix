@@ -184,11 +184,19 @@ def periodogram_feauture_extractor(tilts_no_z,x_or_y): # returns four largest po
 
     return power_1,power_2,power_3,power_4,power_5,power_6,frequency_1,frequency_2,frequency_3,frequency_4,frequency_5,frequency_6
 
+def total_spectral_energy(tilts_no_z,x_or_y):
+    number_data_points = 72
+    tilts = tilts_no_z[:,x_or_y]
+    periodogram_data = spectrum.speriodogram(tilts,NFFT=number_data_points)
+    total_spectral_energy = np.sum(periodogram_data)
+    return total_spectral_energy
+
+
 """ ^^^ TILT FUNCTIONS (all use calibrated tilts) ^^^ """
 
-feature_count = 29
+feature_count = 39
 
-def extract_features(data, desired_features = range(29), unlinked = False): # returns features
+def extract_features(data, desired_features = range(39), unlinked = False): # returns features
 
     """ vvv initialise lists and get calibrated tilts vvv """
 
@@ -240,6 +248,12 @@ def extract_features(data, desired_features = range(29), unlinked = False): # re
     y_frequency_5_list = []
     y_frequency_6_list = [] 
     
+    #total spectral energy (2 features)
+    
+    x_total_spectral_energy_list = []
+    y_total_spectral_energy_list = []
+    
+    
     # calibrate tilts
     tilts = get_tilt_timeseries(data)
     tilts_no_z = calibrate_remove_z(tilts)
@@ -253,6 +267,10 @@ def extract_features(data, desired_features = range(29), unlinked = False): # re
         # extract periodogram data for current incident
         x_power_1,x_power_2,x_power_3,x_power_4,x_power_5,x_power_6,x_frequency_1,x_frequency_2,x_frequency_3,x_frequency_4,x_frequency_5,x_frequency_6 = periodogram_feauture_extractor(tilts_no_z[incident],0)
         y_power_1,y_power_2,y_power_3,y_power_4,y_power_5,y_power_6,y_frequency_1,y_frequency_2,y_frequency_3,y_frequency_4,y_frequency_5,y_frequency_6 = periodogram_feauture_extractor(tilts_no_z[incident],1)
+        
+        #extract total spectral energy for current incident
+        x_total_spectral_energy = total_spectral_energy(tilts_no_z,0)
+        y_total_spectral_energy = total_spectral_energy(tilts_no_z,1)
         
         # update keyword lists
         if unlinked == False:
@@ -306,6 +324,10 @@ def extract_features(data, desired_features = range(29), unlinked = False): # re
         y_frequency_4_list.append(y_frequency_4)
         y_frequency_5_list.append(y_frequency_5)
         y_frequency_6_list.append(y_frequency_6)
+        
+        #update spectral energy lists
+        x_total_spectral_energy_list.append(x_total_spectral_energy)
+        y_total_spectral_energy_list.append(y_total_spectral_energy)
 
 
     """ ^^^ fill lists with data ^^^ """    
@@ -317,7 +339,8 @@ def extract_features(data, desired_features = range(29), unlinked = False): # re
                     x_power_1_list, x_power_2_list, x_power_3_list, x_power_4_list, x_power_5_list, x_power_6_list,
                     x_frequency_1_list, x_frequency_2_list, x_frequency_3_list, x_frequency_4_list,x_frequency_5_list, x_frequency_6_list,
                     y_power_1_list, y_power_2_list, y_power_3_list, y_power_4_list,y_power_5_list,y_power_6_list,
-                    y_frequency_1_list, y_frequency_2_list, y_frequency_3_list, y_frequency_4_list,y_frequency_5_list,y_frequency_6_list]
+                    y_frequency_1_list, y_frequency_2_list, y_frequency_3_list, y_frequency_4_list,y_frequency_5_list,y_frequency_6_list,
+                    x_total_spectral_energy_list,y_total_spectral_energy_list]
 
     desired_feature_list = [features_list[i] for i in desired_features]
 
