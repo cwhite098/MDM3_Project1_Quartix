@@ -158,7 +158,7 @@ def periodogram_feauture_extractor(tilts_no_z,x_or_y): # returns four largest po
     sorted_periodogram_data = sorted(periodogram_data,reverse=True)
     largest_powers = sorted_periodogram_data[0:4]
     corresponding_frequencies = []
-    for power in range(4):
+    for power in range(6):
         index = []
         if largest_powers[power] == 0:
             corresponding_frequencies.append(0) #if the power is 0 we return a frequency of 0
@@ -171,14 +171,18 @@ def periodogram_feauture_extractor(tilts_no_z,x_or_y): # returns four largest po
     power_2 = largest_powers[1]
     power_3 = largest_powers[2]
     power_4 = largest_powers[3]
+    power_5 = largest_powers[4]
+    power_6 = largest_powers[5]
     frequency_1 = corresponding_frequencies[0]
     frequency_2 = corresponding_frequencies[1]
     frequency_3 = corresponding_frequencies[2]
     frequency_4 = corresponding_frequencies[3]
+    frequency_5 = corresponding_frequencies[4]
+    frequency_6 = corresponding_frequencies[5]
     
     
 
-    return power_1,power_2,power_3,power_4,frequency_1,frequency_2,frequency_3,frequency_4
+    return power_1,power_2,power_3,power_4,power_5,power_6,frequency_1,frequency_2,frequency_3,frequency_4,frequency_5,frequency_6
 
 """ ^^^ TILT FUNCTIONS (all use calibrated tilts) ^^^ """
 
@@ -207,26 +211,34 @@ def extract_features(data, desired_features = range(29), unlinked = False): # re
     y_std_dev_list = []   
     max_acc_list = []   
     
-    # periodogram (16 features)
+    # periodogram (24 features)
     x_power_1_list = []
     x_power_2_list= []
     x_power_3_list = []
     x_power_4_list = []
+    x_power_5_list = []
+    x_power_6_list = []
     
     x_frequency_1_list = []
     x_frequency_2_list = []
     x_frequency_3_list = []
-    x_frequency_4_list = [] 
+    x_frequency_4_list = []
+    x_frequency_5_list = [] 
+    x_frequency_6_list = []
     
     y_power_1_list = []
     y_power_2_list= []
     y_power_3_list = []
     y_power_4_list = []
+    y_power_5_list = []
+    y_power_6_list = []
     
     y_frequency_1_list = []
     y_frequency_2_list = []
     y_frequency_3_list = []
-    y_frequency_4_list = [] 
+    y_frequency_4_list = []
+    y_frequency_5_list = []
+    y_frequency_6_list = [] 
     
     # calibrate tilts
     tilts = get_tilt_timeseries(data)
@@ -239,8 +251,8 @@ def extract_features(data, desired_features = range(29), unlinked = False): # re
     for incident in range(len(data)):
         
         # extract periodogram data for current incident
-        x_power_1,x_power_2,x_power_3,x_power_4,x_frequency_1,x_frequency_2,x_frequency_3,x_frequency_4 = periodogram_feauture_extractor(tilts_no_z[incident],0)
-        y_power_1,y_power_2,y_power_3,y_power_4,y_frequency_1,y_frequency_2,y_frequency_3,y_frequency_4 = periodogram_feauture_extractor(tilts_no_z[incident],1)
+        x_power_1,x_power_2,x_power_3,x_power_4,x_power_5,x_power_6,x_frequency_1,x_frequency_2,x_frequency_3,x_frequency_4,x_frequency_5,x_frequency_6 = periodogram_feauture_extractor(tilts_no_z[incident],0)
+        y_power_1,y_power_2,y_power_3,y_power_4,y_power_5,y_power_6,y_frequency_1,y_frequency_2,y_frequency_3,y_frequency_4,y_frequency_5,y_frequency_6 = periodogram_feauture_extractor(tilts_no_z[incident],1)
         
         # update keyword lists
         if unlinked == False:
@@ -271,21 +283,29 @@ def extract_features(data, desired_features = range(29), unlinked = False): # re
         x_power_2_list.append(x_power_2)
         x_power_3_list.append(x_power_3)
         x_power_4_list.append(x_power_4)
+        x_power_5_list.append(x_power_5)
+        x_power_6_list.append(x_power_6)
         
         x_frequency_1_list.append(x_frequency_1)
         x_frequency_2_list.append(x_frequency_2)
         x_frequency_3_list.append(x_frequency_3)
         x_frequency_4_list.append(x_frequency_4)
+        x_frequency_5_list.append(x_frequency_5)
+        x_frequency_6_list.append(x_frequency_6)
         
         y_power_1_list.append(y_power_1)
         y_power_2_list.append(y_power_2)
         y_power_3_list.append(y_power_3)
         y_power_4_list.append(y_power_4)
+        y_power_5_list.append(y_power_5)
+        y_power_6_list.append(y_power_6)
         
         y_frequency_1_list.append(y_frequency_1)
         y_frequency_2_list.append(y_frequency_2)
         y_frequency_3_list.append(y_frequency_3)
         y_frequency_4_list.append(y_frequency_4)
+        y_frequency_5_list.append(y_frequency_5)
+        y_frequency_6_list.append(y_frequency_6)
 
 
     """ ^^^ fill lists with data ^^^ """    
@@ -294,10 +314,10 @@ def extract_features(data, desired_features = range(29), unlinked = False): # re
     features_list = [ignition_freq_list, stop_freq_list, ignition_times_list, stop_time_list,
                     max_stop_times_list, vel_change_list, max_vel_change_list, distance_till_ig_off_list, distance_travelled_list,
                     mag_spike_difference_list, x_std_dev_list, y_std_dev_list, max_acc_list,
-                    x_power_1_list, x_power_2_list, x_power_3_list, x_power_4_list,
-                    x_frequency_1_list, x_frequency_2_list, x_frequency_3_list, x_frequency_4_list,
-                    y_power_1_list, y_power_2_list, y_power_3_list, y_power_4_list,
-                    y_frequency_1_list, y_frequency_2_list, y_frequency_3_list, y_frequency_4_list]
+                    x_power_1_list, x_power_2_list, x_power_3_list, x_power_4_list, x_power_5_list, x_power_6_list,
+                    x_frequency_1_list, x_frequency_2_list, x_frequency_3_list, x_frequency_4_list,x_frequency_5_list, x_frequency_6_list,
+                    y_power_1_list, y_power_2_list, y_power_3_list, y_power_4_list,y_power_5_list,y_power_6_list,
+                    y_frequency_1_list, y_frequency_2_list, y_frequency_3_list, y_frequency_4_list,y_frequency_5_list,y_frequency_6_list]
 
     desired_feature_list = [features_list[i] for i in desired_features]
 
