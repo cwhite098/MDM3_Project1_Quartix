@@ -184,7 +184,7 @@ def periodogram_feauture_extractor(tilts_no_z,x_or_y): # returns four largest po
 
     return power_1,power_2,power_3,power_4,power_5,power_6,frequency_1,frequency_2,frequency_3,frequency_4,frequency_5,frequency_6
 
-def total_spectral_energy(tilts_no_z,x_or_y):
+def total_spectral_energy(tilts_no_z,x_or_y): # returns the total spectral energy in x or y
     number_data_points = 72
     tilts = tilts_no_z[:,x_or_y]
     periodogram_data = spectrum.speriodogram(tilts,NFFT=number_data_points)
@@ -248,7 +248,7 @@ def extract_features(data, desired_features = range(39), unlinked = False): # re
     y_frequency_5_list = []
     y_frequency_6_list = [] 
     
-    #total spectral energy (2 features)
+    # total spectral energy (2 features)
     
     x_total_spectral_energy_list = []
     y_total_spectral_energy_list = []
@@ -347,12 +347,3 @@ def extract_features(data, desired_features = range(39), unlinked = False): # re
     features = np.transpose(np.array(desired_feature_list))
                                 
     return features
-
-# load in the data
-cat_data = load_list('pickle_data', 'cat_data')
-unlinked_data = load_list('pickle_data', 'unlinked_data')
-
-unlinked_features = [4,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28]
-
-# get the features 
-train_x = extract_features(unlinked_data, unlinked_features, True)
