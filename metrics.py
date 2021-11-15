@@ -27,7 +27,7 @@ def acc(y_true, y_pred):
 
 
 
-def get_optimal_conmat(conmat):
+def get_optimal_conmat(conmat, plot_ROC = True):
 
     clusters = np.linspace(0,conmat.shape[0]-1,conmat.shape[0], dtype=int)
 
@@ -71,12 +71,14 @@ def get_optimal_conmat(conmat):
     optimal_assignment = powerset_clusters[optimal_idx]
     optimal_mat = mat_list[optimal_idx]
 
+    optimal_FPR = FPR_list[optimal_idx]
     optimal_FNR = FNR_list[optimal_idx]
 
-    plt.plot([0,1],[0,1],'--', c='r')
-    plt.scatter(FPR_list, TPR_list)
-    plt.scatter(FPR_list[optimal_idx], TPR_list[optimal_idx])
-    plt.title('ROC'), plt.xlabel('FPR'), plt.ylabel('TPR')
-    plt.show()
+    if plot_ROC:
+        plt.plot([0,1],[0,1],'--', c='r')
+        plt.scatter(FPR_list, TPR_list)
+        plt.scatter(FPR_list[optimal_idx], TPR_list[optimal_idx])
+        plt.title('ROC'), plt.xlabel('FPR'), plt.ylabel('TPR')
+        plt.show()
 
-    return optimal_mat, optimal_assignment, optimal_FNR
+    return optimal_mat, optimal_assignment, optimal_FNR, optimal_FPR
