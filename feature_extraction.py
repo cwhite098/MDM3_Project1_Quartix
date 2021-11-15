@@ -156,7 +156,7 @@ def periodogram_feauture_extractor(tilts_no_z,x_or_y): # returns four largest po
     fourier_freqs = rfftfreq(number_data_points,d=s_s)
     periodogram_data = spectrum.speriodogram(sum_tilts,NFFT=number_data_points)
     sorted_periodogram_data = sorted(periodogram_data,reverse=True)
-    largest_powers = sorted_periodogram_data[0:4]
+    largest_powers = sorted_periodogram_data[0:6]
     corresponding_frequencies = []
     for power in range(6):
         index = []
