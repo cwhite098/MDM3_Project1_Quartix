@@ -6,39 +6,41 @@ from PFA import *
 from feature_extraction import *
 import numpy as np
 
-# load data and features list
-uncat_data = load_list('pickle_data', 'uncat_data')
-features = extract_features(uncat_data)
+def feature_selection(n_features):
 
-# run pfa many times and collect matrix of indices which pfa suggests through the given iterations are most important features
-iterations = 100
-n_features=10
-count = 0
-column_indices_mat = np.empty([iterations, n_features])
+    # load data and features list
+    uncat_data = load_list('pickle_data', 'uncat_data')
+    features = extract_features(uncat_data)
 
-while count < iterations:
-    # create pfa 
-    pfa = PFA(n_features)
-    pfa.fit(features)
-    X = pfa.features_
-    column_indices = pfa.indices_
-    column_indices_mat[count,:] = column_indices
-    count += 1
+    # run pfa many times and collect matrix of indices which pfa suggests through the given iterations are most important features
+    iterations = 100
+    count = 0
+    column_indices_mat = np.empty([iterations, n_features])
 
-# see which features are most commonly suggested as the most important ones
-column_indices_mat = column_indices_mat.astype(int)
-freq = np.bincount(column_indices_mat.flatten())
-freq = np.asarray(freq)
-top_features = []
+    while count < iterations:
+        # create pfa 
+        pfa = PFA(n_features)
+        pfa.fit(features)
+        X = pfa.features_
+        column_indices = pfa.indices_
+        column_indices_mat[count,:] = column_indices
+        count += 1
 
-count = 0
+    # see which features are most commonly suggested as the most important ones
+    column_indices_mat = column_indices_mat.astype(int)
+    freq = np.bincount(column_indices_mat.flatten())
+    freq = np.asarray(freq)
+    top_features = []
 
-while count < n_features:
-    idx = np.argmax(freq)
-    top_features.append(idx)
-    freq[idx] = 0
-    count += 1
+    count = 0
 
-# print a list of which features are the most important 
-top_features.sort()
-print([x+1 for x in top_features])
+    while count < n_features:
+        idx = np.argmax(freq)
+        top_features.append(idx)
+        freq[idx] = 0
+        count += 1
+
+    # sort list 
+    top_features.sort()
+
+    return top_features
