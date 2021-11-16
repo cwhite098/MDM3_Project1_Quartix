@@ -6,11 +6,10 @@ from PFA import *
 from feature_extraction import *
 import numpy as np
 
-def feature_selection(n_features):
+def feature_selection(n_features, data):
 
-    # load data and features list
-    uncat_data = load_list('pickle_data', 'uncat_data')
-    features = extract_features(uncat_data)
+    features = data
+    #features = extract_features(uncat_data)
 
     # run pfa many times and collect matrix of indices which pfa suggests through the given iterations are most important features
     iterations = 100
@@ -44,3 +43,4 @@ def feature_selection(n_features):
     top_features.sort()
 
     return top_features
+
